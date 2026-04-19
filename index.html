@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MM2 Trading Hub FINAL</title>
+  <style>
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:radial-gradient(circle at top,#1a1a2e,#070711);
+      color:#fff;
+      overflow-x:hidden;
+    }
+
+    .bg{
+      position:fixed;
+      inset:-50%;
+      background:conic-gradient(from 0deg,#6c5ce7,#00c896,#38bdf8,#fb7185,#6c5ce7);
+      animation:spin 12s linear infinite;
+      opacity:0.08;
+      z-index:-1;
+    }
+
+    @keyframes spin{
+      to{transform:rotate(360deg);}
+    }
+
+    header{
+      padding:20px;
+      text-align:center;
+      background:#141428cc;
+      backdrop-filter:blur(10px);
+      position:sticky;
+      top:0;
+    }
+
+    .live{
+      position:absolute;
+      right:15px;
+      top:15px;
+      background:#00c896;
+      padding:5px 10px;
+      border-radius:20px;
+      font-size:12px;
+    }
+
+    .container{
+      max-width:1100px;
+      margin:auto;
+      padding:20px;
+    }
+
+    .topbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    input,select{
+      padding:10px;
+      border:none;
+      border-radius:10px;
+      background:#15152a;
+      color:#fff;
+      flex:1;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+      gap:15px;
+      margin-top:15px;
+    }
+
+    .card{
+      background:#141428;
+      padding:15px;
+      border-radius:14px;
+      transition:0.2s;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card:hover{transform:translateY(-5px);}
+
+    .img{
+      height:110px;
+      border-radius:10px;
+      margin-bottom:10px;
+      background:linear-gradient(45deg,#2a2a40,#1b1b2a);
+    }
+
+    .btn{
+      display:inline-block;
+      margin-top:10px;
+      padding:7px 10px;
+      border-radius:8px;
+      background:#6c5ce7;
+      cursor:pointer;
+      font-size:12px;
+    }
+
+    .rar-godly{box-shadow:0 0 12px #a855f7;}
+    .rar-chroma{box-shadow:0 0 12px #38bdf8;}
+    .rar-ancient{box-shadow:0 0 12px #fb7185;}
+    .rar-vintage{box-shadow:0 0 12px #9ca3af;}
+
+    .panel{
+      margin-top:30px;
+      background:#141428;
+      padding:15px;
+      border-radius:12px;
+    }
+
+    .feed{
+      max-height:120px;
+      overflow:auto;
+      font-size:13px;
+      color:#ccc;
+    }
+
+    .toast{
+      position:fixed;
+      bottom:20px;
+      right:20px;
+      background:#6c5ce7;
+      padding:10px 15px;
+      border-radius:10px;
+      display:none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg"></div>
+
+<header>
+  <h1>MM2 Trading Hub FINAL</h1>
+  <p>TikTok: @peachyhalo.shop</p>
+  <div class="live" id="live">Online Traders: 0</div>
+</header>
+
+<div class="toast" id="toast"></div>
+
+<div class="container">
+
+  <div class="topbar">
+    <input id="search" placeholder="Search item..." oninput="render()" />
+    <select id="filter" onchange="render()">
+      <option value="all">All</option>
+      <option value="godly">Godly</option>
+      <option value="ancient">Ancient</option>
+      <option value="chroma">Chroma</option>
+      <option value="vintage">Vintage</option>
+    </select>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="panel">
+    <h3>📩 Trade Inbox (Live Feed)</h3>
+    <div class="feed" id="feed"></div>
+  </div>
+
+</div>
+
+<script>
+
+let items=[
+  {name:"Heartblade",cat:"godly",value:"120",rar:"godly"},
+  {name:"Fang",cat:"godly",value:"55",rar:"godly"},
+  {name:"Icepiercer",cat:"godly",value:"150",rar:"godly"},
+  {name:"Minty",cat:"godly",value:"35",rar:"godly"},
+  {name:"Spider",cat:"godly",value:"60",rar:"godly"},
+  {name:"Chroma Seer",cat:"chroma",value:"90",rar:"chroma"},
+  {name:"Eternal",cat:"ancient",value:"110",rar:"ancient"},
+  {name:"America",cat:"vintage",value:"40",rar:"vintage"}
+];
+
+let feed=[
+  "UserX offered Icewing for Fang",
+  "UserY wants Heartblade",
+  "UserZ traded Chroma Seer"
+];
+
+function toast(t){
+  let x=document.getElementById("toast");
+  x.innerText=t;
+  x.style.display="block";
+  setTimeout(()=>x.style.display="none",2000);
+}
+
+function render(){
+  let g=document.getElementById("grid");
+  let s=document.getElementById("search").value.toLowerCase();
+  let f=document.getElementById("filter").value;
+
+  g.innerHTML="";
+
+  items.filter(i=>(f=="all"||i.cat==f)&&i.name.toLowerCase().includes(s))
+  .forEach(i=>{
+    g.innerHTML+=`
+      <div class="card rar-${i.rar}">
+        <div class="img"></div>
+        <h3>${i.name}</h3>
+        <p>${i.cat}</p>
+        <p>Value: ${i.value}</p>
+        <div class="btn" onclick="copy('${i.name}')">Copy</div>
+      </div>
+    `;
+  });
+
+  document.getElementById("feed").innerHTML=feed.map(f=>"• "+f).join("<br>");
+}
+
+function copy(t){
+  navigator.clipboard.writeText(t);
+  toast("Copied: "+t);
+}
+
+setInterval(()=>{
+  document.getElementById("live").innerText="Online Traders: "+(5+Math.floor(Math.random()*35));
+},2000);
+
+setInterval(()=>{
+  let users=["A","B","C","D","E"];
+  let itemsList=["Fang","Heartblade","Icewing","Chroma Seer"];
+  feed.unshift(users[Math.floor(Math.random()*5)]+" offered "+itemsList[Math.floor(Math.random()*4)]);
+  feed=feed.slice(0,6);
+  document.getElementById("feed").innerHTML=feed.map(f=>"• "+f).join("<br>");
+},4000);
+
+render();
+
+</script>
+
+</body>
+</html>
